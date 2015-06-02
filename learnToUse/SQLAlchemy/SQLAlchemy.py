@@ -1,6 +1,23 @@
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String
 
+engine = create_engine('sqlite:///C:\CloudProjectDB.sqlite')
+connection = engine.connect()
+
+connection.execute("create table mytable (mycol1 INT(10), mycol2 CHAR(20))")
+
+a = 1234
+s = "'rowww'"
+connection.execute("insert into mytable (mycol1, mycol2) values (%s, %s);" % (a, s))
+
+result = connection.execute("select * from mytable where mycol1 = 1234")
+for row in result:
+	print row['mycol1'], row['mycol2']
+
+
+
+exit()
 
 Base = declarative_base()
 
