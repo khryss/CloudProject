@@ -1,4 +1,5 @@
 import pika
+from Controller_config import *
 
 def receiveCallBack(ch, method, proprieties, body):
 		print body
@@ -6,10 +7,10 @@ def receiveCallBack(ch, method, proprieties, body):
 class Controller():
 	def __init__(self):
 		   #AMQP init
-		self.connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+		self.connection = pika.BlockingConnection(pika.ConnectionParameters(AMQP_SERVER_IP))
 		self.channel = self.connection.channel()
-		self.channel.queue_declare(queue = 'serverRecv')
-		self.channel.basic_consume(receiveCallBack, queue = 'serverRecv', no_ack = True)
+		self.channel.queue_declare(queue = AMQP_QUEUE_NAME)
+		self.channel.basic_consume(receiveCallBack, queue = AMQP_QUEUE_NAME, no_ack = True)
 
 	def run(self):
 		try:
@@ -20,3 +21,4 @@ class Controller():
 
 controller = Controller()
 controller.run()
+print "Controller shut down."
