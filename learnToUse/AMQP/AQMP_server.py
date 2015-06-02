@@ -6,6 +6,7 @@ channel = connection.channel()
 channel.queue_declare(queue = 'serverSend')
 channel.queue_declare(queue = 'serverRecv')
 
+
 def receiveCallBack(ch, method, proprieties, body):
 	print body
 
