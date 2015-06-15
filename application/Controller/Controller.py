@@ -1,67 +1,44 @@
-import pika
-from sqlalchemy import create_engine
-from Controller_config import *
+import json
 
-class Controller():
+from communication.AMQPManager import *
+from logger.Logger import *
+
+
+class Controller(object):
 	def __init__(self):
-		   #AMQP init
-		self.amqpConn = pika.BlockingConnection(pika.ConnectionParameters(AMQP_SERVER_IP))
-		self.channel = self.amqpConn.channel()
-		self.channel.queue_declare(queue = AMQP_QUEUE_NAME)
+		   #Logging manager init
+		self.logManager = Logger()
+		   #Communication manager init
+		self.commManager = AMQPManager(self.on_msg_recv, self.stop)
+
+	def on_msg_recv(self, ch, method, proprieties, body):
 		try:
-			self.channel.basic_consume(self.receiveCallBack, queue = AMQP_QUEUE_NAME, no_ack = True)
+			res = json.loads(body) 
 		except:
-			print "Consume exception!"
+			print "Json exception!"
 
-		   #SQLAlchemy init
-		engine = create_engine('sqlite:///C:\CloudProjectDB.sqlite')
-		self.sqlConn = engine.connect()
-		try:
-			self.sqlConn.execute("create table mytable (host_name CHAR(100), host_ip CHAR(20), host_time CHAR(20),\
-				FreeMemory INT(20))")
-		except:
-			print "Table allready exists."
-
-	def receiveCallBack(self, ch, method, proprieties, body):
-		#print body
-		self.logIntoDB(body)
-
-	def logIntoDB(self, body):
-		tokens = body.split() #split the message. separator=' '
-
-		if tokens[0] != "AGENT": #initial check for invalid message
-			print "Not an agent raport!"
-			return
-
-		   #Parse host system info
-		try:
-			agentHostName = tokens[tokens.index("HOSTname:") + 1]
-			agentHostIp = tokens[tokens.index("HOSTip:") + 1]
-			agentHostTime = tokens[tokens.index("HOSTtime:") + 1]
-			agentHostFreeMemory = tokens[tokens.index("FreeMemory-") + 1]
-		except:
-			print "Agent raport is invalid!"
-			return
-
-		try:
-			#print "insert into mytable values ('%s', '%s', '%s', %s);" % (agentHostName, agentHostIp, agentHostTime, agentHostFreeMemory)
-			self.sqlConn.execute("insert into mytable values ('%s', '%s', '%s', %s);" % (agentHostName, agentHostIp,
-																						 agentHostTime, agentHostFreeMemory))
-		except:
-			print "Querry exception!"
+		log = Log(agentHostName = res['agentHostName'],
+				  agentHostIp = res['agentHostIp'],
+				  agentHostTime = res['agentHostTime'],
+				  agentHostFreeMemory = res['agentHostFreeMemory']
+				  )
+		
+		self.logManager.addLog(log)		
 
 	def run(self):
-		try:
-			self.channel.start_consuming()
-		except KeyboardInterrupt:
-			self.channel.stop_consuming()
-		self.amqpConn.close()
+		print "Controller is running. Press Ctrl+C to close."
+		   #run the other Controller components
+		self.commManager.run()
+
+	def stop(self):
+		   #stop the other Controller components
+		self.logManager.stop()
+		print "Controller shut down."
+
+	def getLogs(self):
+		return self.logManager.getLogs()
 
 controller = Controller()
 controller.run()
-print "DataBase:"
-result = controller.sqlConn.execute("select * from mytable")
-for row in result:
-	print row['host_name'], row['host_ip'], row['host_time'], row['FreeMemory']
-
-print "Controller shut down."
+print "data base:"
+print controller.getLogs()
