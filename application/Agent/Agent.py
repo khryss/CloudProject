@@ -19,7 +19,8 @@ class Agent(object):
 				data = json.dumps({'agentHostName':self.sysInfoManager.getHostName(),
 								   'agentHostIp':self.sysInfoManager.getHostIp(),
 								   'agentHostTime':self.sysInfoManager.getHostTime(),
-								   'agentHostFreeMemory':self.sysInfoManager.getHostFreeMem()}
+								   'agentHostFreeMemory':self.sysInfoManager.getHostFreeMem(),
+								   'agentHostCpuLoad':self.sysInfoManager.getHostCpuLoad()}
 								 )
 				self.commManager.send(data)
 				print "Agent sent frame with: %s" % data

@@ -20,7 +20,8 @@ class Controller(object):
 		log = Log(agentHostName = res['agentHostName'],
 				  agentHostIp = res['agentHostIp'],
 				  agentHostTime = res['agentHostTime'],
-				  agentHostFreeMemory = res['agentHostFreeMemory']
+				  agentHostFreeMemory = res['agentHostFreeMemory'],
+				  agentHostCpuLoad = res['agentHostCpuLoad']
 				  )
 		
 		self.logManager.addLog(log)		
