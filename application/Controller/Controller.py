@@ -13,18 +13,12 @@ class Controller(object):
 
 	def on_msg_recv(self, ch, method, proprieties, body):
 		try:
-			res = json.loads(body) 
-		except:
-			print "Json exception!"
+			js = json.loads(body) 
+		except Exception as ex:
+			print "Json exception!" , ex.message
 
-		log = Log(agentHostName = res['agentHostName'],
-				  agentHostIp = res['agentHostIp'],
-				  agentHostTime = res['agentHostTime'],
-				  agentHostFreeMemory = res['agentHostFreeMemory'],
-				  agentHostCpuLoad = res['agentHostCpuLoad']
-				  )
-		
-		self.logManager.addLog(log)		
+		self.logManager.addLog(js)
+		print "Message received from" , js['agentType'] , ":" , js["agentHostData"]
 
 	def run(self):
 		print "Controller is running. Press Ctrl+C to close."
@@ -41,5 +35,4 @@ class Controller(object):
 
 controller = Controller()
 controller.run()
-print "data base:"
-print controller.getLogs()
+print "data base:\n" , controller.getLogs()

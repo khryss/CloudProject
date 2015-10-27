@@ -17,10 +17,17 @@ class Logger(object):
 		logs = self.session.query(Log).order_by(Log.id).all()
 		self.logid = logs[-1].id if logs else 0
 
-	def addLog(self, log):
+	def addLog(self, js):
+		log = Log(agentHostName = js['agentHostName'],
+				  agentHostIp = js['agentHostIp'],
+				  agentHostTime = js['agentHostTime'],
+				  agentType = js['agentType'],
+				  agentHostData = js['agentHostData']
+				  )
+		
 		   #set the next logid to the received log
 		self.logid += 1
-		log.id = self.logid   
+		log.id = self.logid
 
 		try:
 			   #add the log into DB

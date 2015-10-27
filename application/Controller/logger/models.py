@@ -17,13 +17,14 @@ class Log(Base):
 	agentHostName = Column(String)
 	agentHostTime = Column(String)
 	agentHostIp = Column(String)
-	agentHostFreeMemory = Column(String)
-	agentHostCpuLoad = Column(String)
+	agentType = Column(String)
+	agentHostData = Column(String)
 
 	def __repr__(self):
-		return "log[%s]: time:%s name:%s ip:%s freeMem:%s cpuLoad:%s \n" % (self.id,
-																			self.agentHostTime,
-																			self.agentHostName,
-																			self.agentHostIp,
-																			self.agentHostFreeMemory,
-																			self.agentHostCpuLoad)
+		return "log[%s]: time:%s name:%s ip:%s agentType:%s data:%s \n" % \
+					    (self.id,
+						 self.agentHostTime,
+						 self.agentHostName,
+						 self.agentHostIp,
+						 self.agentType,
+						 self.agentHostData)

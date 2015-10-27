@@ -9,7 +9,7 @@ class AMQPManager(object):
 		self.on_msg_recv_CallBack = on_msg_recv_fnc
 		self.on_stop_CallBack = on_stop_fnc
 		   #init AMQP connection
-		self.amqpConn = pika.BlockingConnection(pika.ConnectionParameters(AMQP_SERVER_IP))
+		self.amqpConn = pika.BlockingConnection(pika.ConnectionParameters(AMQP_SERVER_IP,heartbeat_interval=1))
 		self.channel = self.amqpConn.channel()
 		self.channel.queue_declare(queue = AMQP_QUEUE_NAME)
 		try:
@@ -18,7 +18,6 @@ class AMQPManager(object):
 			print "Consume exception: " , ex.message
 
 	def receiveCallBack(self, ch, method, proprieties, body):
-		print "message received"
 		self.on_msg_recv_CallBack(ch, method, proprieties, body)
 
 	def run(self):
