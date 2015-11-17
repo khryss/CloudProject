@@ -1,18 +1,19 @@
 import pika
 
-from configuration.Agent_config import *
-
 
 class AMQPManager(object):
-	def __init__(self):
+	def __init__(self, amqpServerIP, amqpQueueName):
+		   #save parameters
+		self.amqpServerIP = amqpServerIP
+		self.amqpQueueName = amqpQueueName
 		   #init AMQP connection
-		self.amqpConn = pika.BlockingConnection(pika.ConnectionParameters(AMQP_SERVER_IP))
+		self.amqpConn = pika.BlockingConnection(pika.ConnectionParameters(self.amqpServerIP))
 		self.channel = self.amqpConn.channel()
-		self.channel.queue_declare(queue = AMQP_QUEUE_NAME)
+		self.channel.queue_declare(queue = self.amqpQueueName)
 
 	def send(self, data):
 		self.channel.basic_publish(exchange = '',
-								   routing_key = AMQP_QUEUE_NAME,
+								   routing_key = self.amqpQueueName,
 								   body = data)
 
 	def stop(self):

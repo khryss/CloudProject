@@ -1,4 +1,5 @@
 import json
+import ast
 
 from configuration.Agent_config import *
 from communication.AMQPManager import *
@@ -6,9 +7,11 @@ from systeminfo.WMI import *
 
 class AgentModel(object):
 	def __init__(self):
+		   #Configuration file parse
+		self.config = self.getConfig()
 		   #Communication manager init
-		self.commManager = AMQPManager()
-
+		self.commManager = AMQPManager(self.parameters['AMQP_SERVER_IP'],
+									   self.parameters['AMQP_QUEUE_NAME'])
 		   #Systeminfo manager init. Can be used in specific Agent if needed
 		self.sysInfoManager = WMIManager()
 		print "Agent initiated"
@@ -28,7 +31,7 @@ class AgentModel(object):
 				print specificAgentData['AgentName'] , "sent frame"
 				
 				   #connection sleep until next update frame
-				self.commManager.connectionSleep(SYS_INFO_UPDATE_TIME)
+				self.commManager.connectionSleep(self.parameters['SYS_INFO_UPDATE_TIME'])
 				
 
 		except KeyboardInterrupt:
@@ -42,3 +45,21 @@ class AgentModel(object):
 	def getData(self):
 		   #Method to be implemented by specific agent
 		pass
+
+	def getConfig(self):
+		try:
+			f = open('configuration\Agent_config.txt','r')
+		except IOError as ex:
+			print "Exception: ", ex
+			exit()
+
+		self.parameters = {}
+		while 1:
+			l = f.readline()
+			if(l == ''):
+				break
+			r = l.split()
+			self.parameters[r[0]] = ast.literal_eval(r[1])
+		f.close()
+
+

@@ -2,13 +2,13 @@ import time
 
 from models import *
 
-from configuration.Controller_config import *
-
 
 class Logger(object):
-	def __init__(self):
+	def __init__(self, loggerSQLiteDatabaseFile):
+		   #save parameters
+		self.loggerSQLiteDatabaseFile = loggerSQLiteDatabaseFile
 		   #init sqlite engine and session
-		engine = create_engine(LOGGER_SQLITE_DATABASE_FILE, echo=False)
+		engine = create_engine(self.loggerSQLiteDatabaseFile, echo=False)
 		Base.metadata.create_all(engine)
 		self.Session = sessionmaker(bind = engine, expire_on_commit = False)
 		self.session = self.Session()

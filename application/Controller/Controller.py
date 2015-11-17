@@ -1,4 +1,5 @@
 import json
+import ast
 
 from communication.AMQPManager import *
 from logger.Logger import *
@@ -6,10 +7,15 @@ from logger.Logger import *
 
 class Controller(object):
 	def __init__(self):
+		   #Configuration file parse
+		self.getConfig()
 		   #Logging manager init
-		self.logManager = Logger()
+		self.logManager = Logger(self.parameters['LOGGER_SQLITE_DATABASE_FILE'])
 		   #Communication manager init
-		self.commManager = AMQPManager(self.on_msg_recv, self.stop)
+		self.commManager = AMQPManager(self.parameters['AMQP_SERVER_IP'],
+									   self.parameters['AMQP_QUEUE_NAME'],
+									   self.on_msg_recv,
+									   self.stop)
 
 	def on_msg_recv(self, ch, method, proprieties, body):
 		try:
@@ -32,6 +38,22 @@ class Controller(object):
 
 	def getLogs(self):
 		return self.logManager.getLogs()
+
+	def getConfig(self):
+		try:
+			f = open('configuration\Controller_config.txt','r')
+		except IOError as ex:
+			print "Exception: ", ex
+			exit()
+
+		self.parameters = {}
+		while 1:
+			l = f.readline()
+			if(l == ''):
+				break
+			r = l.split()
+			self.parameters[r[0]] = ast.literal_eval(r[1])
+		f.close()
 
 controller = Controller()
 controller.run()

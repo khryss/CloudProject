@@ -1,19 +1,20 @@
 import pika
 
-from configuration.Controller_config import *
-
 
 class AMQPManager(object):
-	def __init__(self, on_msg_recv_fnc=None, on_stop_fnc=None):
+	def __init__(self, amqpServerIP, amqpQueueName, on_msg_recv_fnc=None, on_stop_fnc=None):
+		   #save parameters
+		self.amqpServerIP = amqpServerIP
+		self.amqpQueueName = amqpQueueName
 		   #save callback functions
 		self.on_msg_recv_CallBack = on_msg_recv_fnc
 		self.on_stop_CallBack = on_stop_fnc
 		   #init AMQP connection
-		self.amqpConn = pika.BlockingConnection(pika.ConnectionParameters(AMQP_SERVER_IP,heartbeat_interval=1))
+		self.amqpConn = pika.BlockingConnection(pika.ConnectionParameters(self.amqpServerIP,heartbeat_interval=1))
 		self.channel = self.amqpConn.channel()
-		self.channel.queue_declare(queue = AMQP_QUEUE_NAME)
+		self.channel.queue_declare(queue = self.amqpQueueName)
 		try:
-			self.channel.basic_consume(self.receiveCallBack, queue = AMQP_QUEUE_NAME, no_ack = True)
+			self.channel.basic_consume(self.receiveCallBack, queue = self.amqpQueueName, no_ack = True)
 		except Exception as ex:
 			print "Consume exception: " , ex.message
 
