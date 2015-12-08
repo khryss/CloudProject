@@ -1,11 +1,12 @@
 import json
 import ast
 
-from configuration.Agent_config import *
 from communication.AMQPManager import *
 from systeminfo.WMI import *
 
 class AgentModel(object):
+	CONFIG_FILE_PATH = 'configuration\Agent_config.txt'
+
 	def __init__(self):
 		   #Configuration file parse
 		self.config = self.getConfig()
@@ -14,26 +15,23 @@ class AgentModel(object):
 									   self.parameters['AMQP_QUEUE_NAME'])
 		   #Systeminfo manager init. Can be used in specific Agent if needed
 		self.sysInfoManager = WMIManager()
-		print "Agent initiated"
 
 	def run(self):
-		print "Agent HOST name:" , self.sysInfoManager.getHostName() , ". Press Ctrl+C to close."
+		print "\nAgent HOST name:" , self.sysInfoManager.getHostName() , ". Press Ctrl+C to close."
 		try:
 			while True:
 				specificAgentData = self.getData()
 				js = json.dumps({'agentHostName':self.sysInfoManager.getHostName(),
 						 		 'agentHostIp':self.sysInfoManager.getHostIp(),
 								 'agentHostTime':self.sysInfoManager.getHostTime(),
-								 'agentType':specificAgentData['AgentName'],
-								 'agentHostData':specificAgentData['AgentData']})
+								 'agentType':type(self).__name__,
+								 'agentHostData':specificAgentData})
 				self.commManager.send(js)
 
-				print specificAgentData['AgentName'] , "sent frame"
+				print type(self).__name__ , "sent data"
 				
 				   #connection sleep until next update frame
 				self.commManager.connectionSleep(self.parameters['SYS_INFO_UPDATE_TIME'])
-				
-
 		except KeyboardInterrupt:
 			self.stop()
 
@@ -48,7 +46,7 @@ class AgentModel(object):
 
 	def getConfig(self):
 		try:
-			f = open('configuration\Agent_config.txt','r')
+			f = open(self.CONFIG_FILE_PATH,'r')
 		except IOError as ex:
 			print "Exception: ", ex
 			exit()

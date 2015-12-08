@@ -5,7 +5,7 @@ class AgentCPU(AgentModel):
 		super(AgentCPU,self).__init__()
 
 	def getData(self):
-		return {'AgentName':'AgentCPU', 'AgentData':self.sysInfoManager.getHostCpuLoad()}
+		return self.sysInfoManager.getHostCpuLoad()
 
 
 agent = AgentCPU()

@@ -5,7 +5,7 @@ class AgentMemory(AgentModel):
 		super(AgentMemory,self).__init__()
 
 	def getData(self):
-		return {'AgentName':'AgentMemory', 'AgentData':self.sysInfoManager.getHostFreeMem()}
+		return self.sysInfoManager.getHostFreeMem()
 
 
 agent = AgentMemory()
