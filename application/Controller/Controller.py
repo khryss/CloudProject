@@ -6,6 +6,8 @@ from logger.Logger import *
 
 
 class Controller(object):
+	CONFIG_FILE_PATH = 'configuration\Controller_config.txt'
+	
 	def __init__(self):
 		   #Configuration file parse
 		self.getConfig()
@@ -17,14 +19,14 @@ class Controller(object):
 									   self.on_msg_recv,
 									   self.stop)
 
-	def on_msg_recv(self, ch, method, proprieties, body):
+	def on_msg_recv(self, ch, method, proprieties, js):
 		try:
-			js = json.loads(body) 
+			data = json.loads(js)
 		except Exception as ex:
 			print "Json exception!" , ex.message
 
-		self.logManager.addLog(js)
-		print "Message received from" , js['agentType'] , ":" , js["agentHostData"]
+		self.logManager.addLog(data)
+		print "Message received from" , data['agentType'] , ":" , data["agentHostData"]
 
 	def run(self):
 		print "Controller is running. Press Ctrl+C to close."
@@ -41,7 +43,7 @@ class Controller(object):
 
 	def getConfig(self):
 		try:
-			f = open('configuration\Controller_config.txt','r')
+			f = open(self.CONFIG_FILE_PATH,'r')
 		except IOError as ex:
 			print "Exception: ", ex
 			exit()
@@ -55,6 +57,8 @@ class Controller(object):
 			self.parameters[r[0]] = ast.literal_eval(r[1])
 		f.close()
 
-controller = Controller()
-controller.run()
-print "data base:\n" , controller.getLogs()
+
+if __name__ == '__main__':
+	controller = Controller()
+	controller.run()
+	print "data base:\n" , controller.getLogs()

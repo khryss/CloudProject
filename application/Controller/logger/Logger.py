@@ -8,23 +8,22 @@ class Logger(object):
 		   #save parameters
 		self.loggerSQLiteDatabaseFile = loggerSQLiteDatabaseFile
 		   #init sqlite engine and session
-		engine = create_engine(self.loggerSQLiteDatabaseFile, echo=False)
-		Base.metadata.create_all(engine)
-		self.Session = sessionmaker(bind = engine, expire_on_commit = False)
+		self.engine = create_engine(self.loggerSQLiteDatabaseFile, echo=False)
+		Base.metadata.create_all(self.engine)
+		self.Session = sessionmaker(bind = self.engine, autoflush = False, expire_on_commit = True)
 		self.session = self.Session()
 
 		   #init log id with the next id based on the DB
 		logs = self.session.query(Log).order_by(Log.id).all()
 		self.logid = logs[-1].id if logs else 0
 
-	def addLog(self, js):
-		log = Log(agentHostName = js['agentHostName'],
-				  agentHostIp = js['agentHostIp'],
-				  agentHostTime = js['agentHostTime'],
-				  agentType = js['agentType'],
-				  agentHostData = js['agentHostData']
+	def addLog(self, data):
+		log = Log(agentHostName = data['agentHostName'],
+				  agentHostIp = data['agentHostIp'],
+				  agentHostTime = data['agentHostTime'],
+				  agentType = data['agentType'],
+				  agentHostData = data['agentHostData']
 				  )
-		
 		   #set the next logid to the received log
 		self.logid += 1
 		log.id = self.logid
